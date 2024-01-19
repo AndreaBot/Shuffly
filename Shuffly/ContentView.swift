@@ -17,8 +17,13 @@ struct ContentView: View {
     @State private var shuffledWord = ""
     @State private var guess = ""
     
-    @FocusState private var txtFieldFocused: Bool
     @State private var feedback: Feedback = .neutral
+    @FocusState private var txtFieldFocused: Bool
+    
+    @State private var alertIsPresented = false
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
+    
     
     var body: some View {
         VStack {
@@ -38,10 +43,14 @@ struct ContentView: View {
         }
         .padding()
         .onAppear(perform: generateWord)
-        .onSubmit {
-            checkGuess()
+        .onSubmit { checkGuess() }
+        .alert(alertTitle, isPresented: $alertIsPresented) {
+            Button("OK") {
+                guess = ""
+            }
+        } message: {
+            Text(alertMessage)
         }
-        
     }
     
     func generateWord() {
@@ -59,6 +68,14 @@ struct ContentView: View {
     }
     
     func checkGuess() {
+        
+        guard wordIsFiveLettersLong(word: guess) else {
+            alertTitle = "Careful!"
+            alertMessage = "Your guess needs to be exactly 5 characters long"
+            alertIsPresented = true
+            return
+        }
+        
         if guess == wordToGuess {
             feedback = .correct
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -84,6 +101,10 @@ struct ContentView: View {
         } else {
             return .red
         }
+    }
+    
+    func wordIsFiveLettersLong(word: String) -> Bool {
+        return word.count == 5
     }
 }
 
