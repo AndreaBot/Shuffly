@@ -119,14 +119,19 @@ struct ContentView: View {
         
         if guess == wordToGuess {
             feedback = .correct
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            if countdown + 6 < totalTime {
+                countdown += 6
+            } else {
+                countdown = totalTime
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 guess = ""
                 feedback = .neutral
                 generateWord()
             }
         } else {
             feedback = .wrong
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 guess = ""
                 feedback = .neutral
                 txtFieldFocused = true
