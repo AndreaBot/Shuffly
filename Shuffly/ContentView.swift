@@ -24,25 +24,67 @@ struct ContentView: View {
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     
+    let totalTime = 20.0
+    @State private var countdown = 0.0
+    @State private var timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+    @State private var timerIsRunning = false
+    
+    
     
     var body: some View {
         VStack {
+            HStack {
+                Spacer()
+                Button(timerIsRunning ? "Stop Game" : "Start Game") {
+                    if timerIsRunning {
+                        timer.upstream.connect().cancel()
+                        countdown = 0
+                        txtFieldFocused = false
+                    } else {
+                        generateWord()
+                        countdown = totalTime
+                        timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+                    }
+                    timerIsRunning.toggle()
+                }
+                .buttonStyle(.borderedProminent)
+            }
             
-            Text(wordToGuess)
-            Text(shuffledWord)
-                .font(.largeTitle)
-                .fontWeight(.heavy)
-            TextField("Type your guess", text: $guess)
-                .frame(height: 50)
-                .background(RoundedRectangle(cornerRadius: 5).fill(showColor(using: feedback)))
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.characters)
-                .multilineTextAlignment(.center)
-                .submitLabel(.done)
-                .focused($txtFieldFocused)
+            ProgressView(countdown > 0 ? "Time Left: \(String(format: "%.1f", countdown))" : "",
+                         value: countdown, total: totalTime)
+            .tint(colorBasedOn(countdown))
+            .onReceive(timer) { _ in
+                if countdown > 0 {
+                    countdown = max(0, countdown - 0.05)
+                } else if countdown == 0 {
+                    timer.upstream.connect().cancel()
+                    timerIsRunning = false
+                    txtFieldFocused = false
+                }
+            }
+            
+            Spacer()
+            
+            VStack {
+                Text(wordToGuess)
+                Text(shuffledWord)
+                    .font(.largeTitle)
+                    .fontWeight(.heavy)
+                TextField("Type your guess", text: $guess)
+                    .frame(height: UIScreen.main.bounds.height/14)
+                    .background(RoundedRectangle(cornerRadius: UIScreen.main.bounds.width).fill(showColor(using: feedback)))
+                    .autocorrectionDisabled()
+                    .keyboardType(.alphabet)
+                    .textInputAutocapitalization(.characters)
+                    .multilineTextAlignment(.center)
+                    .submitLabel(.done)
+                    .focused($txtFieldFocused)
+            }
+            .opacity(countdown > 0 ? 1 : 0)
+            
+            Spacer()
         }
         .padding()
-        .onAppear(perform: generateWord)
         .onSubmit { checkGuess() }
         .alert(alertTitle, isPresented: $alertIsPresented) {
             Button("OK") {
@@ -68,7 +110,6 @@ struct ContentView: View {
     }
     
     func checkGuess() {
-        
         guard wordIsFiveLettersLong(word: guess) else {
             alertTitle = "Careful!"
             alertMessage = "Your guess needs to be exactly 5 characters long"
@@ -105,6 +146,18 @@ struct ContentView: View {
     
     func wordIsFiveLettersLong(word: String) -> Bool {
         return word.count == 5
+    }
+    
+    func colorBasedOn(_ countdown: Double) -> Color {
+        if (10.0..<totalTime).contains(countdown) {
+            return .green
+        } else if (4.0..<10.0).contains(countdown) {
+            return .yellow
+        } else if (0.0..<4.0).contains(countdown) {
+            return .red
+        } else {
+            return .green
+        }
     }
 }
 
