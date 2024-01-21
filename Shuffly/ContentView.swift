@@ -33,9 +33,8 @@ struct ContentView: View {
     @State private var wrongGuessesCount = 0
     
     
-    
     var body: some View {
-        VStack {
+        VStack(spacing: 20) {
             HStack {
                 Spacer()
                 Button(timerIsRunning ? "Stop Game" : "Start Game") {
@@ -78,7 +77,6 @@ struct ContentView: View {
             Spacer()
             
             VStack {
-                Text(wordToGuess)
                 Text(shuffledWord)
                     .font(.largeTitle)
                     .fontWeight(.heavy)
@@ -92,6 +90,9 @@ struct ContentView: View {
                     .submitLabel(.done)
                     .focused($txtFieldFocused)
             }
+            .padding()
+            .background(LinearGradient(colors: [.green, .mint], startPoint: .top, endPoint: .bottom))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
             .opacity(countdown > 0 ? 1 : 0)
             
             Spacer()
@@ -157,7 +158,7 @@ struct ContentView: View {
     
     func showColor(using feedback: Feedback) -> Color {
         if feedback == .neutral {
-            return .secondary.opacity(0.2)
+            return .indigo.opacity(0.2)
         } else if feedback == .correct {
             return .green
         } else {
