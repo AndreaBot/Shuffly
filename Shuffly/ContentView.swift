@@ -29,6 +29,9 @@ struct ContentView: View {
     @State private var timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
     @State private var timerIsRunning = false
     
+    @State private var correctGuessesCount = 0
+    @State private var wrongGuessesCount = 0
+    
     
     
     var body: some View {
@@ -39,9 +42,13 @@ struct ContentView: View {
                     if timerIsRunning {
                         timer.upstream.connect().cancel()
                         countdown = 0
+                        correctGuessesCount = 0
+                        wrongGuessesCount = 0
                         txtFieldFocused = false
                     } else {
                         generateWord()
+                        correctGuessesCount = 0
+                        wrongGuessesCount = 0
                         countdown = totalTime
                         timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
                     }
@@ -54,12 +61,17 @@ struct ContentView: View {
                          value: countdown, total: totalTime)
             .tint(colorBasedOn(countdown))
             .onReceive(timer) { _ in
-                if countdown > 0 {
-                    countdown = max(0, countdown - 0.05)
-                } else if countdown == 0 {
-                    timer.upstream.connect().cancel()
-                    timerIsRunning = false
-                    txtFieldFocused = false
+                if timerIsRunning {
+                    if countdown > 0 {
+                        countdown = max(0, countdown - 0.05)
+                    } else if countdown == 0 {
+                        timer.upstream.connect().cancel()
+                        timerIsRunning = false
+                        txtFieldFocused = false
+                        alertTitle = "GAME OVER!"
+                        alertMessage = "You've guessed \(correctGuessesCount) words correctly and made \(wrongGuessesCount) mistakes."
+                        alertIsPresented = true
+                    }
                 }
             }
             
@@ -89,6 +101,7 @@ struct ContentView: View {
         .alert(alertTitle, isPresented: $alertIsPresented) {
             Button("OK") {
                 guess = ""
+                timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
             }
         } message: {
             Text(alertMessage)
@@ -111,6 +124,7 @@ struct ContentView: View {
     
     func checkGuess() {
         guard wordIsFiveLettersLong(word: guess) else {
+            timer.upstream.connect().cancel()
             alertTitle = "Careful!"
             alertMessage = "Your guess needs to be exactly 5 characters long"
             alertIsPresented = true
@@ -119,6 +133,7 @@ struct ContentView: View {
         
         if guess == wordToGuess {
             feedback = .correct
+            correctGuessesCount += 1
             if countdown + 6 < totalTime {
                 countdown += 6
             } else {
@@ -131,6 +146,7 @@ struct ContentView: View {
             }
         } else {
             feedback = .wrong
+            wrongGuessesCount += 1
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 guess = ""
                 feedback = .neutral
@@ -154,11 +170,15 @@ struct ContentView: View {
     }
     
     func colorBasedOn(_ countdown: Double) -> Color {
-        if (10.0..<totalTime).contains(countdown) {
+        let range1 = totalTime/2.5...totalTime
+        let range2 = totalTime/6...totalTime/2.5
+        let range3 = 0...totalTime/6
+        
+        if range1.contains(countdown) {
             return .green
-        } else if (4.0..<10.0).contains(countdown) {
+        } else if range2.contains(countdown) {
             return .yellow
-        } else if (0.0..<4.0).contains(countdown) {
+        } else if range3.contains(countdown) {
             return .red
         } else {
             return .green
