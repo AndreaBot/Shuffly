@@ -25,7 +25,6 @@ struct EndGameView: View {
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: 25.0))
-              
             
             Button("Close") {
                 gameIsOver = false
