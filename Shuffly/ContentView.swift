@@ -32,101 +32,109 @@ struct ContentView: View {
     @State private var correctGuessesCount = 0
     @State private var wrongGuessesCount = 0
     
+    @State private var gameIsOver = false
+    @State private var allGuesses = [String]()
+    
     
     var body: some View {
-        VStack(spacing: 20) {
-            HStack {
-                Spacer()
-                
-                Button(timerIsRunning ? "Stop Game" : "Start Game") {
-                    if timerIsRunning {
-                        timer.upstream.connect().cancel()
-                        countdown = 0
-                        correctGuessesCount = 0
-                        wrongGuessesCount = 0
-                        txtFieldFocused = false
-                    } else {
-                        generateWord()
-                        correctGuessesCount = 0
-                        wrongGuessesCount = 0
-                        countdown = totalTime
-                        timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
-                        txtFieldFocused = true
-                    }
-                    timerIsRunning.toggle()
-                }
-                .buttonStyle(.borderedProminent)
-            }
+        ZStack {
+            EndGameView(gameIsOver: $gameIsOver, allGuesses: $allGuesses, correctGuessesCount: $correctGuessesCount, wrongGuessesCount: $wrongGuessesCount)
+                .opacity(gameIsOver ? 1 : 0)
             
-            ProgressView(countdown > 0 ? "Time Left: \(String(format: "%.1f", countdown))" : "",
-                         value: countdown, total: totalTime)
-            .tint(colorBasedOn(countdown))
-            .onReceive(timer) { _ in
-                if timerIsRunning {
-                    if countdown > 0 {
-                        countdown = max(0, countdown - 0.05)
-                    } else if countdown == 0 {
-                        timer.upstream.connect().cancel()
-                        timerIsRunning = false
-                        txtFieldFocused = false
-                        alertTitle = "GAME OVER!"
-                        alertMessage = "You've guessed \(correctGuessesCount) words correctly and made \(wrongGuessesCount) mistakes."
-                        alertIsPresented = true
-                    }
-                }
-            }
-            
-            Spacer()
-            
-            VStack {
-                Text(shuffledWord)
-                    .font(.largeTitle)
-                    .fontWeight(.heavy)
-                TextField("Type your guess", text: $guess)
-                    .frame(height: UIScreen.main.bounds.height/14)
-                    .background(RoundedRectangle(cornerRadius: UIScreen.main.bounds.width).fill(showColor(using: feedback)))
-                    .autocorrectionDisabled()
-                    .keyboardType(.alphabet)
-                    .textInputAutocapitalization(.characters)
-                    .multilineTextAlignment(.center)
-                    .submitLabel(.done)
-                    .focused($txtFieldFocused)
-                    .onSubmit {
-                        txtFieldFocused = true
-                    }
+            VStack(spacing: 20) {
+                HStack {
+                    Spacer()
                     
-                    .toolbar {
-                        ToolbarItemGroup(placement: .keyboard){
-                            Spacer()
-                            Button("Check") {
-                                checkGuess()
-                            }
-                            .buttonStyle(.borderedProminent)
+                    Button(timerIsRunning ? "Stop Game" : "Start Game") {
+                        if timerIsRunning {
+                            timer.upstream.connect().cancel()
+                            countdown = 0
+                            correctGuessesCount = 0
+                            wrongGuessesCount = 0
+                            txtFieldFocused = false
+                        } else {
+                            generateWord()
+                            correctGuessesCount = 0
+                            wrongGuessesCount = 0
+                            countdown = totalTime
+                            timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+                            txtFieldFocused = true
+                        }
+                        timerIsRunning.toggle()
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                
+                ProgressView(countdown > 0 ? "Time Left: \(String(format: "%.1f", countdown))" : "",
+                             value: countdown, total: totalTime)
+                .tint(colorBasedOn(countdown))
+                .onReceive(timer) { _ in
+                    if timerIsRunning {
+                        if countdown > 0 {
+                            countdown = max(0, countdown - 0.05)
+                        } else if countdown == 0 {
+                            timer.upstream.connect().cancel()
+                            timerIsRunning = false
+                            txtFieldFocused = false
+                            gameIsOver = true
                         }
                     }
+                }
+                
+                Spacer()
+                
+                VStack {
+                    Text(shuffledWord)
+                        .font(.largeTitle)
+                        .fontWeight(.heavy)
+                    TextField("Type your guess", text: $guess)
+                        .frame(height: UIScreen.main.bounds.height/14)
+                        .background(RoundedRectangle(cornerRadius: UIScreen.main.bounds.width).fill(showColor(using: feedback)))
+                        .autocorrectionDisabled()
+                        .keyboardType(.alphabet)
+                        .textInputAutocapitalization(.characters)
+                        .multilineTextAlignment(.center)
+                        .submitLabel(.done)
+                        .focused($txtFieldFocused)
+                        .onSubmit {
+                            txtFieldFocused = true
+                        }
+                    
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard){
+                                Spacer()
+                                Button("Check") {
+                                    checkGuess()
+                                }
+                                .buttonStyle(.borderedProminent)
+                            }
+                        }
+                }
+                .padding()
+                .background(LinearGradient(colors: [.green, .mint], startPoint: .top, endPoint: .bottom))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .opacity(countdown > 0 ? 1 : 0)
+                
+                Spacer()
             }
             .padding()
-            .background(LinearGradient(colors: [.green, .mint], startPoint: .top, endPoint: .bottom))
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            .opacity(countdown > 0 ? 1 : 0)
-            
-            Spacer()
-        }
-        .padding()
-        .alert(alertTitle, isPresented: $alertIsPresented) {
-            Button("OK") {
-                guess = ""
-                txtFieldFocused = true
-                timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+            .alert(alertTitle, isPresented: $alertIsPresented) {
+                Button("OK") {
+                    guess = ""
+                    txtFieldFocused = true
+                    timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+                }
+            } message: {
+                Text(alertMessage)
             }
-        } message: {
-            Text(alertMessage)
+            .opacity(gameIsOver ? 0 : 1)
         }
     }
     
     func generateWord() {
         wordToGuess = AllWords.words.randomElement() ?? "APPLE"
         shuffledWord = shuffleLetters(using: wordToGuess)
+        allGuesses.append(wordToGuess)
         print(wordToGuess)
     }
     

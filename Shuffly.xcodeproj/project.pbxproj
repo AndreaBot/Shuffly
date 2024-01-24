@@ -12,6 +12,7 @@
 		629196602B5B1FDB004AFE9B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6291965F2B5B1FDB004AFE9B /* Assets.xcassets */; };
 		629196632B5B1FDB004AFE9B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 629196622B5B1FDB004AFE9B /* Preview Assets.xcassets */; };
 		6291966A2B5B2060004AFE9B /* AllWords.swift in Sources */ = {isa = PBXBuildFile; fileRef = 629196692B5B2060004AFE9B /* AllWords.swift */; };
+		62ED76B42B6189F600262298 /* EndGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62ED76B32B6189F600262298 /* EndGameView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +22,7 @@
 		6291965F2B5B1FDB004AFE9B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		629196622B5B1FDB004AFE9B /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		629196692B5B2060004AFE9B /* AllWords.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllWords.swift; sourceTree = "<group>"; };
+		62ED76B32B6189F600262298 /* EndGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndGameView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,6 +57,7 @@
 			children = (
 				6291965B2B5B1FD9004AFE9B /* ShufflyApp.swift */,
 				6291965D2B5B1FD9004AFE9B /* ContentView.swift */,
+				62ED76B32B6189F600262298 /* EndGameView.swift */,
 				629196692B5B2060004AFE9B /* AllWords.swift */,
 				6291965F2B5B1FDB004AFE9B /* Assets.xcassets */,
 				629196612B5B1FDB004AFE9B /* Preview Content */,
@@ -140,6 +143,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				62ED76B42B6189F600262298 /* EndGameView.swift in Sources */,
 				6291965E2B5B1FD9004AFE9B /* ContentView.swift in Sources */,
 				6291966A2B5B2060004AFE9B /* AllWords.swift in Sources */,
 				6291965C2B5B1FD9004AFE9B /* ShufflyApp.swift in Sources */,
