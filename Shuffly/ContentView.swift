@@ -24,7 +24,7 @@ struct ContentView: View {
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     
-    let totalTime = 20.0
+    @State private var totalTime = 20.0
     @State private var countdown = 0.0
     @State private var timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
     @State private var timerIsRunning = false
@@ -37,6 +37,7 @@ struct ContentView: View {
         VStack(spacing: 20) {
             HStack {
                 Spacer()
+                
                 Button(timerIsRunning ? "Stop Game" : "Start Game") {
                     if timerIsRunning {
                         timer.upstream.connect().cancel()
@@ -50,6 +51,7 @@ struct ContentView: View {
                         wrongGuessesCount = 0
                         countdown = totalTime
                         timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+                        txtFieldFocused = true
                     }
                     timerIsRunning.toggle()
                 }
@@ -89,6 +91,19 @@ struct ContentView: View {
                     .multilineTextAlignment(.center)
                     .submitLabel(.done)
                     .focused($txtFieldFocused)
+                    .onSubmit {
+                        txtFieldFocused = true
+                    }
+                    
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard){
+                            Spacer()
+                            Button("Check") {
+                                checkGuess()
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
+                    }
             }
             .padding()
             .background(LinearGradient(colors: [.green, .mint], startPoint: .top, endPoint: .bottom))
@@ -98,10 +113,10 @@ struct ContentView: View {
             Spacer()
         }
         .padding()
-        .onSubmit { checkGuess() }
         .alert(alertTitle, isPresented: $alertIsPresented) {
             Button("OK") {
                 guess = ""
+                txtFieldFocused = true
                 timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
             }
         } message: {
@@ -112,7 +127,7 @@ struct ContentView: View {
     func generateWord() {
         wordToGuess = AllWords.words.randomElement() ?? "APPLE"
         shuffledWord = shuffleLetters(using: wordToGuess)
-        txtFieldFocused = true
+        print(wordToGuess)
     }
     
     func shuffleLetters(using word: String) -> String {
@@ -151,7 +166,6 @@ struct ContentView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 guess = ""
                 feedback = .neutral
-                txtFieldFocused = true
             }
         }
     }
