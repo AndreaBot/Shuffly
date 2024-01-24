@@ -24,7 +24,7 @@ struct ContentView: View {
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     
-    @State private var totalTime = 20.0
+    @State private var totalTime = 30.0
     @State private var countdown = 0.0
     @State private var timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
     @State private var timerIsRunning = false
@@ -33,7 +33,7 @@ struct ContentView: View {
     @State private var wrongGuessesCount = 0
     
     @State private var gameIsOver = false
-    @State private var allGuesses = [String]()
+    @State private var allGuesses = [WordModel]()
     
     @State private var attemptsPerWord = 2
     @State private var attempts = [(id: 1, value: 1), (id: 2, value: 1)]
@@ -80,6 +80,7 @@ struct ContentView: View {
                                     countdown = max(0, countdown - 0.05)
                                 } else if countdown == 0 {
                                     timer.upstream.connect().cancel()
+                                    allGuesses.append(WordModel(word: wordToGuess, color: .red))
                                     timerIsRunning = false
                                     txtFieldFocused = false
                                     gameIsOver = true
@@ -144,14 +145,17 @@ struct ContentView: View {
                 
             }
             .opacity(gameIsOver ? 0 : 1)
+            .padding()
         }
     }
+      
+    
+    //MARK: - Functions
     
     func generateWord() {
         resetTextField()
         wordToGuess = AllWords.words.randomElement() ?? "APPLE"
         shuffledWord = shuffleLetters(using: wordToGuess)
-        allGuesses.append(wordToGuess)
         attemptsPerWord = 2
         for index in attempts.indices {
             attempts[index].value = 1
@@ -177,6 +181,7 @@ struct ContentView: View {
         }
         
         if guess == wordToGuess {
+            allGuesses.append(WordModel(word: wordToGuess, color: .green))
             feedback = .correct
             correctGuessesCount += 1
             if countdown + 6 < totalTime {
@@ -197,6 +202,7 @@ struct ContentView: View {
                     resetTextField()
                 }
             } else {
+                allGuesses.append(WordModel(word: wordToGuess, color: .red))
                 generateWord()
             }
         }

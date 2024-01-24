@@ -10,29 +10,55 @@ import SwiftUI
 struct EndGameView: View {
     
     @Binding var gameIsOver: Bool
-    @Binding var allGuesses: [String]
+    @Binding var allGuesses: [WordModel]
     @Binding var correctGuessesCount: Int
     @Binding var wrongGuessesCount: Int
     
+    
     var body: some View {
-        VStack(spacing: 20) {
-            Text("GAME OVER!")
-            
-            Text("You've guessed \(correctGuessesCount) words correctly and made \(wrongGuessesCount) mistakes.")
-            List {
-                ForEach(allGuesses, id:\.self) {
-                    Text($0)
+        VStack {
+            Form {
+                Section {
+                    Text("GAME OVER!")
+                        .frame(maxWidth: .infinity)
+                        .multilineTextAlignment(.center)
+                }
+                
+                Section {
+                    HStack {
+                        Text("Correct Guesses:")
+                        Spacer()
+                        Text("\(correctGuessesCount)")
+                    }
+                    HStack {
+                        Text("Mistakes:")
+                        Spacer()
+                        Text("\(wrongGuessesCount)")
+                    }
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 25.0))
+            .scrollDisabled(true)
+            .frame(height: 220)
+            
+            Section() {
+                Text("Word List")
+            }
+            List(allGuesses, id:\.self.word) {
+                Text($0.word)
+                    .foregroundStyle($0.color)
+                    .frame(maxWidth: .infinity)
+                    .multilineTextAlignment(.center)
+            }
+            
+            Spacer()
             
             Button("Close") {
                 gameIsOver = false
             }
             .buttonStyle(.borderedProminent)
+            
+            Spacer()
         }
         .padding()
-        .background(.secondary)
-        .clipShape(RoundedRectangle(cornerRadius: 25.0))
     }
 }
