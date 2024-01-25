@@ -24,7 +24,7 @@ struct ContentView: View {
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     
-    @State private var totalTime = 30.0
+    @State private var totalTime = 3.0
     @State private var countdown = 0.0
     @State private var timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
     @State private var timerIsRunning = false
@@ -41,8 +41,10 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-            EndGameView(gameIsOver: $gameIsOver, allGuesses: $allGuesses, correctGuessesCount: $correctGuessesCount, wrongGuessesCount: $wrongGuessesCount)
-                .opacity(gameIsOver ? 1 : 0)
+            if gameIsOver {
+                EndGameView(gameIsOver: $gameIsOver, allGuesses: $allGuesses, correctGuessesCount: $correctGuessesCount, wrongGuessesCount: $wrongGuessesCount)
+                    .transition(.opacity.animation(.default))
+            }
             
             VStack(spacing: 20) {
                 HStack {
