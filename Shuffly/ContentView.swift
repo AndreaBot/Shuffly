@@ -92,6 +92,9 @@ struct ContentView: View {
                             ForEach(attempts, id: \.self.id) {
                                 Image(systemName: "heart.fill")
                                     .foregroundStyle($0.value == 1 ? .red : .gray)
+                                    .scaleEffect($0.value == 1 ? 1 : 0.7)
+                                    .animation(.default, value: $0.value)
+                                    
                             }
                         }
                     }
