@@ -24,7 +24,7 @@ struct ContentView: View {
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     
-    @State private var totalTime = 3.0
+    @State private var totalTime = 30.0
     @State private var countdown = 0.0
     @State private var timer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
     @State private var timerIsRunning = false
@@ -118,6 +118,7 @@ struct ContentView: View {
                             .focused($txtFieldFocused)
                             .onSubmit {
                                 txtFieldFocused = true
+                                checkGuess()
                             }
                         
                             .toolbar {
@@ -207,8 +208,10 @@ struct ContentView: View {
                     resetTextField()
                 }
             } else {
-                allGuesses.append(WordModel(word: wordToGuess, color: .red))
-                generateWord()
+                resetTextField()
+                countdown = 0
+                txtFieldFocused = false
+                gameIsOver = true
             }
         }
     }
